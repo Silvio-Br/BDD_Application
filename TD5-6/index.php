@@ -26,12 +26,17 @@ $app->get('/api/games/{id}[/]', function(Request $rq, Response $rs, array $args)
 $app->get('/api/games/{id}/comments[/]', function(Request $rq, Response $rs, array $args): Response {
     $c = new Controller($this);
     return $c->displayCommentsGame($rq,$rs,$args);
-})->setName('gameId');
+})->setName('gameComments');
 
 $app->get('/api/games[/]', function(Request $rq, Response $rs, array $args) {
     $c = new Controller($this);
     return $c->displayGames($rq,$rs,$args);
 })->setName('games');
+
+$app->get('api/games/{id}/characters[/]', function(Request $rq, Response $rs, array $args): Response {
+    $c = new Controller($this);
+    return $c->displayCharactersGame($rq,$rs,$args);
+})->setName('gameCharacters');
 
 $app->run();
 

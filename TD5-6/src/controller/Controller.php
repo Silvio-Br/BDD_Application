@@ -29,8 +29,17 @@ class Controller
     {
         try {
             $jeu = Game::select('id','name','alias','deck','description','original_release_date')->where('id','=',$args['id'])->firstOrFail();
-            $rs->getBody()->write($jeu);
-            return $rs->withHeader('Content-Type', 'application/json');
+
+            $rep =[];
+
+            array_push($rep, [
+                "game"=>$jeu,
+                "links"=>["comments" => ["href"=> $this->c->router->pathFor('gameComments', ['id' => $jeu->id])],
+                    "characters" => ["href"=> $this->c->router->pathFor('gameCharacters', ['id' => $jeu->id])]
+                ]
+            ]);
+
+            return $rs->withHeader('Content-Type', 'application/json')->write(json_encode($rep));
         } catch (ModelNotFoundException $e) {
             $rs->getBody()->write("Jeu inexistant");
             return $rs->withStatus(404);
@@ -108,6 +117,11 @@ class Controller
             $rs->getBody()->write("Jeu inexistant");
             return $rs->withStatus(404);
         }
+    }
+
+    public function displayCharactersGame(Request $rq, Response $rs, array $args): Response
+    {
+
     }
 
 }
