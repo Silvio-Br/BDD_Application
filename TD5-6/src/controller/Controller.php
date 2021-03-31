@@ -123,19 +123,6 @@ class Controller
             }
 
             $rs->getBody()->write(json_encode($jsonTmp, JSON_PRETTY_PRINT));
-
-            $html = <<<END
-<form methode="post">
-<input type="text" name="email"/>
-<input type="text" name="titre"/>
-<textarea name="contenue"/>
-</form>
-
-END;
-
-
-            $rs->getBody()->write($html);
-
             return $rs->withHeader('Content-Type', 'application/json');
         } catch (ModelNotFoundException $e) {
             $rs->getBody()->write("Jeu inexistant");
@@ -188,6 +175,33 @@ END;
             return $rs->withHeader('Content-Type', 'application/json')->write(json_encode($platform, JSON_PRETTY_PRINT));
         } catch (ModelNotFoundException $e) {
             $rs->getBody()->write("Jeu inexistant");
+            return $rs->withStatus(404);
+        }
+
+    }
+
+    public function postCommentGame(Request $rq, Response $rs, array $args): Response {
+        $data = $rq->getParsedBody();
+        if (isset($data['comment'])) {
+            $comment = $data['comment'];
+            try {
+                $user = User::query()->where('email','=',$data['comment']['mail'])->firstOrFail();
+
+                $commentaire = new Comments();
+                $commentaire->auteur = $user->id;
+                $commentaire->titre = $comment['titre'];
+                $commentaire->contenu = $comment['contenu'];
+                $commentaire->save();
+
+                $rs->write(json_encode($commentaire, JSON_PRETTY_PRINT));
+                return $rs->withStatus(201)->withHeader('Location', '/api/comments/'.$commentaire->id);
+            } catch (ModelNotFoundException $e) {
+                $rs->getBody()->write("User Not Found");
+                return $rs->withStatus(404);
+            }
+
+        } else {
+            $rs->getBody()->write("No Data");
             return $rs->withStatus(404);
         }
 

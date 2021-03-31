@@ -30,7 +30,7 @@ $app->get('/api/games/{id}/comments[/]', function(Request $rq, Response $rs, arr
 
 $app->post('/api/games/{id}/comments[/]', function(Request $rq, Response $rs, array $args): Response {
     $c = new Controller($this);
-    return $c->displayCommentsGame($rq,$rs,$args);
+    return $c->postCommentGame($rq,$rs,$args);
 })->setName('gameCommentsPost');
 
 $app->get('/api/games[/]', function(Request $rq, Response $rs, array $args) {
