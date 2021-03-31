@@ -123,6 +123,19 @@ class Controller
             }
 
             $rs->getBody()->write(json_encode($jsonTmp, JSON_PRETTY_PRINT));
+
+            $html = <<<END
+<form methode="post">
+<input type="text" name="email"/>
+<input type="text" name="titre"/>
+<textarea name="contenue"/>
+</form>
+
+END;
+
+
+            $rs->getBody()->write($html);
+
             return $rs->withHeader('Content-Type', 'application/json');
         } catch (ModelNotFoundException $e) {
             $rs->getBody()->write("Jeu inexistant");
