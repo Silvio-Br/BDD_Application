@@ -38,5 +38,10 @@ $app->get('api/games/{id}/characters[/]', function(Request $rq, Response $rs, ar
     return $c->displayCharactersGame($rq,$rs,$args);
 })->setName('gameCharacters');
 
+$app->get('api/platform/{id}[/]', function(Request $rq, Response $rs, array $args): Response {
+    $c = new Controller($this);
+    return $c->displayPlatformDetail($rq,$rs,$args);
+})->setName('platformDetail');
+
 $app->run();
 

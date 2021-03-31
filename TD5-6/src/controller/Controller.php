@@ -6,6 +6,7 @@ namespace gamepedia\controller;
 
 use gamepedia\models\Comments;
 use gamepedia\models\Game;
+use gamepedia\models\Plateformes;
 use gamepedia\models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Slim\Http\Request;
@@ -30,16 +31,33 @@ class Controller
         try {
             $jeu = Game::select('id','name','alias','deck','description','original_release_date')->where('id','=',$args['id'])->firstOrFail();
 
+            $platforms = Game::query()->where('id', '=',$args['id'])->with('platforms')->firstOrFail();
+
+            $plat =[];
+
+            foreach ($platforms['platforms'] as $platform) {
+                $com = Plateformes::find($platform->id);
+                array_push($plat, ["platform"=>[
+                    "id"=>$com['id'],
+                    "name"=>$com['name'],
+                    "alias"=>$com['alias'],
+                    "abbreviation"=>$com['abbreviation']],
+                    "links" =>["detail"=>["href"=>$this->c->router->pathFor('platformDetail', ['id'=>$com['id']])]]
+                ]);
+
+            }
+
             $rep =[];
 
             array_push($rep, [
                 "game"=>$jeu,
+                "platform"=>$plat,
                 "links"=>["comments" => ["href"=> $this->c->router->pathFor('gameComments', ['id' => $jeu->id])],
                     "characters" => ["href"=> $this->c->router->pathFor('gameCharacters', ['id' => $jeu->id])]
                 ]
             ]);
 
-            return $rs->withHeader('Content-Type', 'application/json')->write(json_encode($rep));
+            return $rs->withHeader('Content-Type', 'application/json')->write(json_encode($rep, JSON_PRETTY_PRINT));
         } catch (ModelNotFoundException $e) {
             $rs->getBody()->write("Jeu inexistant");
             return $rs->withStatus(404);
@@ -85,7 +103,7 @@ class Controller
         ];
 
         if (!$allGames->isEmpty()) {
-            return $rs->withHeader('Content-Type', 'application/json')->write(json_encode($jsonTmp));
+            return $rs->withHeader('Content-Type', 'application/json')->write(json_encode($jsonTmp, JSON_PRETTY_PRINT));
         } else {
             $rs->getBody()->write("Page inexistante");
             return $rs->withStatus(404);
@@ -111,7 +129,7 @@ class Controller
                 ]);
             }
 
-            $rs->getBody()->write(json_encode($jsonTmp));
+            $rs->getBody()->write(json_encode($jsonTmp, JSON_PRETTY_PRINT));
             return $rs->withHeader('Content-Type', 'application/json');
         } catch (ModelNotFoundException $e) {
             $rs->getBody()->write("Jeu inexistant");
@@ -121,6 +139,10 @@ class Controller
 
     public function displayCharactersGame(Request $rq, Response $rs, array $args): Response
     {
+
+    }
+
+    public function displayPlatformDetail(Request $rq, Response $rs, array $args): Response {
 
     }
 

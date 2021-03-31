@@ -6,5 +6,5 @@ class Plateformes extends Model
 {
     protected $table = 'platform';
     protected $primaryKey = 'id';
-    public $timestamps = false;
+    public $timestamps = true;
 }

@@ -28,4 +28,8 @@ class Game extends Model
         return $this->belongsToMany(Comments::class, 'game2comment', 'id_game','id_comment');
     }
 
+    public function platforms(){
+        return $this->belongsToMany(Plateformes::class, 'game2platform', 'game_id', 'platform_id');
+    }
+
 }
