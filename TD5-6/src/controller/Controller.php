@@ -157,6 +157,14 @@ class Controller
     }
 
     public function displayPlatformDetail(Request $rq, Response $rs, array $args): Response {
+        try{
+            $platform = Plateformes::query()->select('id', 'name', 'alias', 'abbreviation', 'deck', 'description', 'release_date', 'original_price')->where('id', '=', $args['id'])->firstOrFail();
+
+            return $rs->withHeader('Content-Type', 'application/json')->write(json_encode($platform, JSON_PRETTY_PRINT));
+        } catch (ModelNotFoundException $e) {
+            $rs->getBody()->write("Jeu inexistant");
+            return $rs->withStatus(404);
+        }
 
     }
 
