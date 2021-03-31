@@ -53,5 +53,10 @@ $app->get('/api/platform/{id}[/]', function(Request $rq, Response $rs, array $ar
     return $c->displayPlatformDetail($rq,$rs,$args);
 })->setName('platformDetail');
 
+$app->get('/api/comments/{id}[/]', function(Request $rq, Response $rs, array $args): Response {
+    $c = new Controller($this);
+    return $c->displayCommentsDetail($rq,$rs,$args);
+})->setName('commentsDetail');
+
 $app->run();
 

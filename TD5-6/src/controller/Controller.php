@@ -207,4 +207,17 @@ class Controller
 
     }
 
+
+    public function displayCommentsDetail(Request $rq, Response $rs, array $args): Response
+    {
+        try {
+            $comment = Comments::query()->select('id', 'auteur', 'titre', 'contenu', 'date')->where('id', '=', $args['id'])->firstOrFail();
+
+            return $rs->withHeader('Content-Type', 'application/json')->write(json_encode($comment, JSON_PRETTY_PRINT));
+        } catch (ModelNotFoundException $e) {
+            $rs->getBody()->write("Jeu inexistant");
+            return $rs->withStatus(404);
+        }
+    }
+
 }
