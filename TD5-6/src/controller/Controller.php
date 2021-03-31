@@ -31,17 +31,13 @@ class Controller
         try {
             $jeu = Game::select('id','name','alias','deck','description','original_release_date')->where('id','=',$args['id'])->firstOrFail();
 
-            $platforms = Game::query()->where('id', '=',$args['id'])->with('platforms')->firstOrFail();
+            $platforms = Game::query()->where('id', '=',$args['id'])->with('platforms:id,name,alias,abbreviation')->firstOrFail();
 
             $plat =[];
 
             foreach ($platforms['platforms'] as $platform) {
                 $com = Plateformes::find($platform->id);
-                array_push($plat, ["platform"=>[
-                    "id"=>$com['id'],
-                    "name"=>$com['name'],
-                    "alias"=>$com['alias'],
-                    "abbreviation"=>$com['abbreviation']],
+                array_push($plat, ["platform"=>$platform,
                     "links" =>["detail"=>["href"=>$this->c->router->pathFor('platformDetail', ['id'=>$com['id']])]]
                 ]);
 
@@ -51,7 +47,7 @@ class Controller
 
             array_push($rep, [
                 "game"=>$jeu,
-                "platform"=>$plat,
+                "platforms"=>$plat,
                 "links"=>["comments" => ["href"=> $this->c->router->pathFor('gameComments', ['id' => $jeu->id])],
                     "characters" => ["href"=> $this->c->router->pathFor('gameCharacters', ['id' => $jeu->id])]
                 ]
@@ -114,19 +110,15 @@ class Controller
     public function displayCommentsGame(Request $rq, Response $rs, array $args): Response
     {
         try {
-            $jeu = Game::with('comments')->where('id', '=', $args['id'])->firstOrFail();
+            $jeu = Game::with('comments:id,titre,contenu,created_at')->where('id', '=', $args['id'])->firstOrFail();
 
             $jsonTmp = [];
 
             foreach ($jeu['comments'] as $commentaire) {
                 $com = Comments::find($commentaire->id);
-                array_push($jsonTmp, [
-                    "id" => $commentaire['id'],
-                    "titre" => $commentaire['titre'],
-                    "texte" => $commentaire['contenu'],
-                    "dateCreation" => $commentaire['created_at'],
-                    "auteur" => User::find($com->auteur)->first()->nom
-                ]);
+                $commentaire->auteur = User::find($com->auteur)->first()->nom;
+
+                array_push($jsonTmp, $commentaire);
             }
 
             $rs->getBody()->write(json_encode($jsonTmp, JSON_PRETTY_PRINT));
@@ -139,7 +131,29 @@ class Controller
 
     public function displayCharactersGame(Request $rq, Response $rs, array $args): Response
     {
+        try {
+            $personnages = Game::with('personnages:id,name')->where('id', '=', $args['id'])->firstOrFail();
 
+            $characArray = [];
+            foreach ($personnages['personnages'] as $perso) {
+                array_push($characArray, [
+                    "character" => $perso,
+                    "links" => ["self" => [
+                        "href" => $this->c->router->pathFor('gameCharacters', ['id' => $perso->id])
+                    ]]
+                ]);
+            }
+
+            $jsonTmp = [
+                "characters" => $characArray
+            ];
+
+            $rs->getBody()->write(json_encode($jsonTmp, JSON_PRETTY_PRINT));
+            return $rs->withHeader('Content-Type', 'application/json');
+        } catch (ModelNotFoundException $e) {
+            $rs->getBody()->write("Jeu inexistant");
+            return $rs->withStatus(404);
+        }
     }
 
     public function displayPlatformDetail(Request $rq, Response $rs, array $args): Response {

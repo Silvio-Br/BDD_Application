@@ -7,6 +7,7 @@ class Character extends Model
     protected $table = 'character';
     protected $primaryKey = 'id';
     public $timestamps = false;
+    protected $hidden = ['pivot'];
 
     public function jeux() {
         $this->belongsToMany(Game::class, 'game2character','id','id');

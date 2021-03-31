@@ -33,12 +33,17 @@ $app->get('/api/games[/]', function(Request $rq, Response $rs, array $args) {
     return $c->displayGames($rq,$rs,$args);
 })->setName('games');
 
-$app->get('api/games/{id}/characters[/]', function(Request $rq, Response $rs, array $args): Response {
+$app->get('/api/games/{id}/characters[/]', function(Request $rq, Response $rs, array $args): Response {
     $c = new Controller($this);
     return $c->displayCharactersGame($rq,$rs,$args);
 })->setName('gameCharacters');
 
-$app->get('api/platform/{id}[/]', function(Request $rq, Response $rs, array $args): Response {
+$app->get('/api/characters/{id}[/]', function(Request $rq, Response $rs, array $args): Response {
+    $c = new Controller($this);
+    return $c->displayCharacterId($rq,$rs,$args);
+})->setName('platformDetail');
+
+$app->get('/api/platform/{id}[/]', function(Request $rq, Response $rs, array $args): Response {
     $c = new Controller($this);
     return $c->displayPlatformDetail($rq,$rs,$args);
 })->setName('platformDetail');
