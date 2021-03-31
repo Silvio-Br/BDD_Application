@@ -4,6 +4,7 @@
 namespace gamepedia\controller;
 
 
+use gamepedia\models\Character;
 use gamepedia\models\Comments;
 use gamepedia\models\Game;
 use gamepedia\models\Plateformes;
@@ -139,7 +140,7 @@ class Controller
                 array_push($characArray, [
                     "character" => $perso,
                     "links" => ["self" => [
-                        "href" => $this->c->router->pathFor('gameCharacters', ['id' => $perso->id])
+                        "href" => $this->c->router->pathFor('characterId', ['id' => $perso->id])
                     ]]
                 ]);
             }
@@ -150,6 +151,17 @@ class Controller
 
             $rs->getBody()->write(json_encode($jsonTmp, JSON_PRETTY_PRINT));
             return $rs->withHeader('Content-Type', 'application/json');
+        } catch (ModelNotFoundException $e) {
+            $rs->getBody()->write("Jeu inexistant");
+            return $rs->withStatus(404);
+        }
+    }
+
+    public function displayCharacterId(Request $rq, Response $rs, array $args): Response {
+        try {
+            $character = Character::query()->where('id','=',$args['id'])->firstOrFail();
+
+            return $rs->withHeader('Content-Type', 'application/json')->write(json_encode($character, JSON_PRETTY_PRINT));
         } catch (ModelNotFoundException $e) {
             $rs->getBody()->write("Jeu inexistant");
             return $rs->withStatus(404);
