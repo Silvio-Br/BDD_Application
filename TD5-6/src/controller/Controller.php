@@ -211,7 +211,7 @@ class Controller
     public function displayCommentsDetail(Request $rq, Response $rs, array $args): Response
     {
         try {
-            $comment = Comments::query()->select('id', 'auteur', 'titre', 'contenu', 'date')->where('id', '=', $args['id'])->firstOrFail();
+            $comment = Comments::query()->where('id', '=', $args['id'])->select('id', 'auteur', 'titre', 'contenu')->firstOrFail();
 
             return $rs->withHeader('Content-Type', 'application/json')->write(json_encode($comment, JSON_PRETTY_PRINT));
         } catch (ModelNotFoundException $e) {
