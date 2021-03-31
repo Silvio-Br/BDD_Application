@@ -196,13 +196,13 @@ class Controller
                 $rs->write(json_encode($commentaire, JSON_PRETTY_PRINT));
                 return $rs->withStatus(201)->withHeader('Location', '/api/comments/'.$commentaire->id);
             } catch (ModelNotFoundException $e) {
-                $rs->getBody()->write("User Not Found");
+                $rs->getBody()->write(json_encode(["error"=>"No User"]));
                 return $rs->withStatus(404);
             }
 
         } else {
-            $rs->getBody()->write("No Data");
-            return $rs->withStatus(404);
+            $rs->getBody()->write(json_encode(["error"=>"No Data"]));
+            return $rs->withStatus(400);
         }
 
     }
